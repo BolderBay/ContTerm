@@ -1,26 +1,32 @@
 #include "ContainerFC.h" 
 #include "ContainerTerminalConsts.h"
+
+#include <iostream>
+#include <map>   
+using namespace std;
 using namespace ContainerTerminalConsts;
 
 struct Coordinatios  // дальний левый нижний угол
 {
-	int x;
-	int y;
-	int z;
+	unsigned int x;
+	unsigned int y;
+	unsigned int z;
 	char orientation;
 };
 
 class Warehouse
 {
 private:
-	int containersNumber;
-	int length;
-	int width;
-	int height;
+	unsigned int containersNumber;
+	unsigned int length;
+	unsigned int width;
+	unsigned int height;
 	float temperature;
-	Container* containers;		// лучше взять коллекцию контейнеров из STL нпример вектор или map
-	Coordinatios* coord;
+	map <Container, Coordinatios> coorditations;
 public:
+	Warehouse();
+	Warehouse(unsigned int l, unsigned int w, unsigned int h, float t);
+
 	void rotate();
 	void getType();
 
