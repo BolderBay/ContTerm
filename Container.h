@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 #include <string>
 #include "ContainerTerminalConsts.h"
@@ -18,5 +19,8 @@ public:
 	Container();
 	Container(std::string comp, unsigned int num, unsigned int l, unsigned int w, unsigned int h, float cst, float ms);
 	virtual void printInfo();
-								
+	virtual std::string returnType();
+	unsigned int getNumber();
+	
+	void setNumber(unsigned int num);
 };

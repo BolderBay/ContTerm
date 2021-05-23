@@ -26,3 +26,7 @@ ContainerFC::ContainerFC(std::string comp, unsigned int num, unsigned int l, uns
 void ContainerFC::printInfo() {
 	std::cout << "Company: " << company << ", dimensions (l,w,h): (" << length << "," << width << "," << height << "), cost: " << cost << ", weight:" << mass << ", max temperature: " << maxtemp << ", max weight: " << maxmass << std::endl;
 }
+
+std::string ContainerFC::returnType() {
+	return "ContainerFC";
+}

@@ -24,3 +24,14 @@ void Container::printInfo() {
 	std::cout << "Company: " << company << ", dimensions (l,w,h): (" << length << "," << width << "," << height << "), cost: " << cost << ", weight:" << mass << std::endl;
 }
 
+std::string Container::returnType() {
+	return "Container";
+}
+
+unsigned int Container::getNumber() {
+	return number;
+}
+
+void Container::setNumber(unsigned int num) {
+	number = num;
+}

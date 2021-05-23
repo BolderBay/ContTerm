@@ -26,3 +26,8 @@ void ContainerFragile::printInfo() {
 	std::cout << "Company: " << company << ", dimensions (l,w,h): (" << length << "," << width << "," << height << "), cost: " << cost << ", weight:" << mass << ", max weight: " << maxmass << std::endl;
 }
 
+std::string ContainerFragile::returnType() {
+	return "ContainerFragile";
+}
+
+
