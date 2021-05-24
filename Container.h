@@ -15,6 +15,7 @@ protected:
 	unsigned int height;
 	float cost;
 	float mass;
+
 public:
 	Container();
 	Container(std::string comp, unsigned int num, unsigned int l, unsigned int w, unsigned int h, float cst, float ms);
@@ -23,4 +24,7 @@ public:
 	unsigned int getNumber();
 	
 	void setNumber(unsigned int num);
+	unsigned int retSize(char plane);
+
+	void setSize(unsigned int x, unsigned int y, unsigned int z);
 };

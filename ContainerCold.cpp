@@ -23,7 +23,7 @@ ContainerCold::ContainerCold(std::string comp, unsigned int num, unsigned int l,
 }
 
 void ContainerCold::printInfo() {
-	std::cout << "Company: " << company << ", dimensions (l,w,h): (" << length << "," << width << "," << height << "), cost: " << cost << ", weight:" << mass << ", max temperature: " << maxtemp << std::endl;
+	std::cout << "Company: " << company << ", dimensions: (" << length << "," << width << "," << height << "), cost: " << cost << ", weight:" << mass << ", max temperature: " << maxtemp << std::endl;
 }
 
 std::string ContainerCold::returnType() {

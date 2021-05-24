@@ -10,7 +10,7 @@ Container::Container() {
 
 Container::Container(std::string comp, unsigned int num, unsigned int l, unsigned int w, unsigned int h, float cst, float ms) {
 	if (comp.size() == 0) throw std::exception("Empty company name\n");
-	if (num == 0 or l == 0 or w == 0 or h == 0 or cst == 0 or ms == 0) throw std::exception("Zero parameter\n");
+	if (num < 0 or l < 0 or w < 0 or h < 0 or cst < 0 or ms < 0) throw std::exception("Zero parameter\n");   // поправить
 	company = comp;
 	number = num;
 	length = l;
@@ -21,7 +21,7 @@ Container::Container(std::string comp, unsigned int num, unsigned int l, unsigne
 }
 
 void Container::printInfo() {
-	std::cout << "Company: " << company << ", dimensions (l,w,h): (" << length << "," << width << "," << height << "), cost: " << cost << ", weight:" << mass << std::endl;
+	std::cout << "Company: " << company << ", dimensions: (" << length << "," << width << "," << height << "), cost: " << cost << ", weight:" << mass << std::endl;
 }
 
 std::string Container::returnType() {
@@ -34,4 +34,17 @@ unsigned int Container::getNumber() {
 
 void Container::setNumber(unsigned int num) {
 	number = num;
+}
+
+unsigned int Container::retSize(char plane) {
+	if (tolower(plane) == 'l') {return length; }
+	if (tolower(plane) == 'w') {return width; }
+	if (tolower(plane) == 'h') { return height; }
+	throw std::exception("Incorrect plane\n");
+}
+
+void Container::setSize(unsigned int x, unsigned int y, unsigned int z) {
+	length = x;
+	width = y;
+	height = z;
 }

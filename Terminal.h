@@ -10,11 +10,16 @@ using namespace ContainerTerminalConsts;
 class Terminal
 {
 private:
-	map <Warehouse, int> listOfWarehouse;
+	map <unsigned int, Warehouse*> listOfWarehouse;
 public:
-	void addWarehouse();
-	void delWarehouse();
-	void resizeWarehouse();
+	Terminal();
+	Terminal(unsigned int num, Warehouse& ware);
+	//~Terminal();
+
+	void addWarehouse(unsigned int num, Warehouse& ware);
+	void resizeWarehouse(unsigned int num, unsigned int l, unsigned int w, unsigned int h);
 	void getInformation();
+	void delWarehouse(unsigned int num);
+
 };
 

@@ -5,34 +5,27 @@
 
 
 int main() {
-	Container cont;
-	ContainerCold cold;
-	ContainerFragile fra;
-	ContainerFC fc;
+	
+	Container container1("US", 322, 2, 1, 0, 500, 100);
+	Container container2("EU", 226, 2, 1, 0, 500, 100);
+	Container container3("RU", 431, 2, 2, 0, 500, 100);
+	Container test("test", 555, 1, 1, 1, 500, 100);
 
-	cold.setNumber(1);
-	fra.setNumber(2);
-	fc.setNumber(3);
+	Coordinatios pos1(0, 0, 0, FRONT);
+	Coordinatios pos2(1, 2, 0, SIDE);
+	Coordinatios pos3(3, 3, 0, FRONT);
+	
+	Coordinatios testpos(0, 2, 0, FRONT);
 
 	Warehouse sklad;
 
-	Coordinatios p;
-	p.x = 1;
-	p.y = 1;
-	p.z = 1;
-	p.orientation = 1;
+	sklad.addContainer(container1, pos1);
+	sklad.addContainer(container2, pos2);
+	sklad.addContainer(container3, pos3);
 
-	sklad.addContainer(cont, p);
-	sklad.addContainer(cold, p);
-	sklad.addContainer(fra, p);
-	sklad.addContainer(fc, p);
+	cout << sklad.checkPlace(test, testpos);
 
-	for (int i = 0; i < 5; ++i) {
-		try {
-			cout << sklad.getType(i) << endl;
-			cout << sklad.getTemp(i) << endl;
-		}
-		catch (std::exception& error) { cout << error.what(); }
-	}
+	sklad.showSheme();
+
 
 }

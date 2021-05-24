@@ -6,8 +6,8 @@ ContainerFC::ContainerFC() {
 	length = width = height = 1;
 	cost = 1;
 	mass = 1;
-	maxmass = 1;
-	maxtemp = 1;
+	maxmass = 5;
+	maxtemp = 5;
 }
 
 ContainerFC::ContainerFC(std::string comp, unsigned int num, unsigned int l, unsigned int w, unsigned int h, float cst, float ms, float mxt, float mxm) {
@@ -24,7 +24,7 @@ ContainerFC::ContainerFC(std::string comp, unsigned int num, unsigned int l, uns
 	maxmass = mxm;
 }
 void ContainerFC::printInfo() {
-	std::cout << "Company: " << company << ", dimensions (l,w,h): (" << length << "," << width << "," << height << "), cost: " << cost << ", weight:" << mass << ", max temperature: " << maxtemp << ", max weight: " << maxmass << std::endl;
+	std::cout << "Company: " << company << ", dimensions: (" << length << "," << width << "," << height << "), cost: " << cost << ", weight:" << mass << ", max temperature: " << maxtemp << ", max weight: " << maxmass << std::endl;
 }
 
 std::string ContainerFC::returnType() {
