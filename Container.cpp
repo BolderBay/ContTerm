@@ -48,3 +48,7 @@ void Container::setSize(unsigned int x, unsigned int y, unsigned int z) {
 	width = y;
 	height = z;
 }
+
+float Container::getMass() {
+	return mass;
+}

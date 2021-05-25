@@ -14,7 +14,7 @@ private:
 public:
 	Terminal();
 	Terminal(unsigned int num, Warehouse& ware);
-	//~Terminal();
+	~Terminal();
 
 	void addWarehouse(unsigned int num, Warehouse& ware);
 	void resizeWarehouse(unsigned int num, unsigned int l, unsigned int w, unsigned int h);

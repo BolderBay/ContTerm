@@ -9,14 +9,14 @@ Terminal::Terminal(unsigned int num, Warehouse& ware) {
 	listOfWarehouse.insert(pair<unsigned int, Warehouse*>(num, &ware));
 }
 
-//Terminal::~Terminal() {
-//	map <unsigned int, Warehouse*>::iterator iter_ware = listOfWarehouse.begin();
-//	while (iter_ware != listOfWarehouse.end()) {
-//		delete iter_ware->second;
-//		iter_ware->second = nullptr;
-//		++iter_ware;	
-//	}
-//}
+Terminal::~Terminal() {
+	map <unsigned int, Warehouse*>::iterator iter_ware = listOfWarehouse.begin();
+	while (iter_ware != listOfWarehouse.end()) {
+		delete iter_ware->second;
+		iter_ware->second = nullptr;
+		++iter_ware;	
+	}
+}
 void Terminal::addWarehouse(unsigned int num, Warehouse& ware) {
 	listOfWarehouse.insert(pair<unsigned int, Warehouse*>(num, &ware));
 }

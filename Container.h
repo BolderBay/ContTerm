@@ -21,10 +21,9 @@ public:
 	Container(std::string comp, unsigned int num, unsigned int l, unsigned int w, unsigned int h, float cst, float ms);
 	virtual void printInfo();
 	virtual std::string returnType();
+	float getMass();
 	unsigned int getNumber();
-	
-	void setNumber(unsigned int num);
 	unsigned int retSize(char plane);
-
+	void setNumber(unsigned int num);
 	void setSize(unsigned int x, unsigned int y, unsigned int z);
 };

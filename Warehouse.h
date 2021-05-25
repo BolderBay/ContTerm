@@ -6,20 +6,28 @@
 using namespace std;
 using namespace ContainerTerminalConsts;
 
-struct Coordinatios  // дальний левый нижний угол
+struct Coordinatios  // ƒальний левый нижний угол
 {
 	unsigned int x;
 	unsigned int y;
 	unsigned int z;
 	char orientation;
 	Coordinatios() { x = 1; y = 1; z = 1; orientation = FRONT;}
-	Coordinatios(unsigned int wx, unsigned int wy, unsigned int wz, char wo) { x = wx;  y = wy; z = wz; orientation = wo;}
+	Coordinatios(unsigned int wx, unsigned int wy, unsigned int wz, char wo) { 
+		if (wo != FRONT and wo != SIDE) throw std::exception("Incorrect plane\n");
+		else {
+			x = wx; 
+			y = wy; 
+			z = wz; 
+			orientation = wo;
+		}
+	}
 };
 
 class Warehouse
 {
 private:
-	unsigned int containersNumber;			//„исло контейнеров
+	unsigned int containersNumber;							// „исло контейнеров
 	unsigned int length;
 	unsigned int width;
 	unsigned int height;
@@ -27,29 +35,29 @@ private:
 	map <unsigned int, Container*> containers;
 	map <unsigned int, Coordinatios*> coorditations;
 
-public:
-	bool checkPlace(Container& cont, Coordinatios& coord);
+	bool checkPlace(Container& cont, Coordinatios& coord);	// ѕроверка пересечени€ контейнеров
+	bool checkDown(Container& cont, Coordinatios& coord);	// ѕроверка наличи€ контейнеров под устанавливаемым
+	float chechDownWeight(Coordinatios& coord);				// ћаксимальна€ масса нижнего контейнера
 
+public:
 	Warehouse();
 	Warehouse(unsigned int l, unsigned int w, unsigned int h, float t);
-	//~Warehouse();
+	~Warehouse();
 
 	std::string getType(unsigned int num);
 	float getTemp(unsigned int num);
 	float getMaxmass(unsigned int num);
-
 	void addContainer(Container& cont, Coordinatios& coord);
 	void getInformation();
 	void resize(unsigned int l, unsigned int w, unsigned int h);
 	unsigned int getSize(char plane);
 	unsigned int getCount();
-
-	void moveContainer();
-	void rotateContainer();
-	void deleteContainer();
-	void autoAddContainer();
-	void CalcNumbContainers();
-
-	void showSheme();
+	void rotateContainer(unsigned int num, char rot);
+	int CalcNumbContainers(Container &cont);
+	int CalcNumbContainers(Container& cont, char plane);
+	void moveContainer(unsigned int num, Coordinatios& coord);
+	void deleteContainer(unsigned int num);
+	void autoAddContainer(Container& cont);
+	void showSheme(unsigned int z);
 };
 
