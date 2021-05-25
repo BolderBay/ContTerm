@@ -58,6 +58,6 @@ public:
 	void moveContainer(unsigned int num, Coordinatios& coord);
 	void deleteContainer(unsigned int num);
 	void autoAddContainer(Container& cont);
-	void showSheme(unsigned int z);
+	void showSchema(unsigned int z);
 };
 

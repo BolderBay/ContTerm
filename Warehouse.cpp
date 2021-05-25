@@ -171,7 +171,7 @@ unsigned int Warehouse::getCount() {
 	return containersNumber;
 }
 
-void Warehouse::showSheme(unsigned int z) {
+void Warehouse::showSchema(unsigned int z) {
 	Container cont("show", 1, 1, 1, 1, 1, 1);
 	Coordinatios p(0, 0, z, FRONT);
 	for (int x = 0; x < 5; ++x) {

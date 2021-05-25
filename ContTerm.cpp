@@ -24,7 +24,7 @@ int main() {
 	sklad.addContainer(container2, pos2);
 	sklad.addContainer(container3, pos3);
 
-	sklad.showSheme(0);
+	sklad.showSchema(0);
 
 
 
