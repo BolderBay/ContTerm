@@ -32,8 +32,8 @@ private:
 	unsigned int width;
 	unsigned int height;
 	float temperature;
-	map <unsigned int, Container*> containers;
-	map <unsigned int, Coordinatios*> coorditations;
+
+	map <unsigned int, pair<Container*, Coordinatios*>> contmap;
 
 	bool checkPlace(Container& cont, Coordinatios& coord);	// ѕроверка пересечени€ контейнеров
 	bool checkDown(Container& cont, Coordinatios& coord);	// ѕроверка наличи€ контейнеров под устанавливаемым
@@ -42,10 +42,13 @@ private:
 public:
 	Warehouse();
 	Warehouse(unsigned int l, unsigned int w, unsigned int h, float t);
+	Warehouse(Warehouse& ware);
+	Warehouse(Warehouse&& ware);
 	~Warehouse();
 
 	std::string getType(unsigned int num);
 	float getTemp(unsigned int num);
+	float getTempWare();
 	float getMaxmass(unsigned int num);
 	void addContainer(Container& cont, Coordinatios& coord);
 	void getInformation();
@@ -59,5 +62,14 @@ public:
 	void deleteContainer(unsigned int num);
 	void autoAddContainer(Container& cont);
 	void showSchema(unsigned int z);
+
+	void printinfocontainer(unsigned int num);
+
+	void write();
+	void read();
+
+	void forSave(std::ostream& out);
+
+
 };
 

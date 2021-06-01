@@ -1,4 +1,7 @@
 #include "Warehouse.h"
+#include <iostream>
+#include <iomanip>
+#include <fstream>
 
 Warehouse::Warehouse()
 {
@@ -18,25 +21,45 @@ Warehouse::Warehouse(unsigned int l, unsigned int w, unsigned int h, float t) {
 	temperature = t;
 }
 
+Warehouse::Warehouse(Warehouse& ware) {
+	containersNumber = ware.getCount();
+	length = ware.getSize('l');
+	width = ware.getSize('w');
+	height = ware.getSize('h');
+	temperature = ware.getTempWare();
+	map <unsigned int, pair<Container*, Coordinatios*>>::iterator iter_contmap = ware.contmap.begin();
+	while (iter_contmap != ware.contmap.end()) {
+		contmap[iter_contmap->first] = { iter_contmap->second.first, iter_contmap->second.second };
+		++iter_contmap;
+	}	
+}
+
+Warehouse::Warehouse(Warehouse&& ware) {
+	containersNumber = ware.containersNumber;
+	length = ware.length;
+	width = ware.width;
+	height = ware.height;
+	temperature = ware.temperature;
+	contmap = ware.contmap;
+}
+
 Warehouse::~Warehouse() {
-	map<unsigned int, Container*>::iterator iter_cont = containers.begin();
-	map<unsigned int, Coordinatios*>::iterator iter_coord = coorditations.begin();
-	while (iter_cont != containers.end()) {
-		delete iter_cont->second;
-		delete iter_coord->second;
-		iter_cont->second = nullptr;
-		iter_coord->second = nullptr;
-		++iter_cont;
-		++iter_coord;
+	map <unsigned int, pair<Container*, Coordinatios*>>::iterator iter_contmap = contmap.begin();
+	while (iter_contmap != contmap.end()) {
+		delete iter_contmap->second.first;
+		delete iter_contmap->second.second;
+		iter_contmap->second.first = nullptr;
+		iter_contmap->second.second = nullptr;
+		++iter_contmap;
 	}
 }
 
 std::string Warehouse::getType(unsigned int num) {
-	if (containers.count(num) >= 1) {
-		if (ContainerCold* p = dynamic_cast<ContainerCold*>(containers[num])) { return p->returnType(); }
-		if (ContainerFragile* p = dynamic_cast<ContainerFragile*>(containers[num])) { return p->returnType(); }
-		if (ContainerFC* p = dynamic_cast<ContainerFC*>(containers[num])) { return p->returnType(); }
-		return containers[num]->returnType();
+	if (contmap.count(num) >= 1) {
+		if (ContainerCold* p = dynamic_cast<ContainerCold*>(contmap[num].first)) { return p->returnType(); }
+		if (ContainerFragile* p = dynamic_cast<ContainerFragile*>(contmap[num].first)) { return p->returnType(); }
+		if (ContainerFC* p = dynamic_cast<ContainerFC*>(contmap[num].first)) { return p->returnType(); }
+		return contmap[num].first->returnType();
 	}
 	else throw std::exception("Incorrect number\n");
 }
@@ -57,20 +80,21 @@ void Warehouse::addContainer(Container& cont, Coordinatios& coord) {
 	}
 	else throw std::exception("The container can't be placed on this coordinate \n");
 	
-	containers.insert(pair<unsigned int, Container*>(cont.getNumber(), &cont));
-	coorditations.insert(pair<unsigned int, Coordinatios*>(cont.getNumber(), &coord));
-	containersNumber = containers.size();
+
+	
+	contmap.insert({ cont.getNumber(), pair<Container*, Coordinatios*>(&cont,&coord) });
+	containersNumber = contmap.size();
 
 }
 
 float Warehouse::getTemp(unsigned int num) {
-	if (ContainerCold* p = dynamic_cast<ContainerCold*>(containers[num])) { return p->getTemp();}
+	if (ContainerCold* p = dynamic_cast<ContainerCold*>(contmap[num].first)) { return p->getTemp();}
 	else {throw std::exception("This is not a refrigerated container \n"); }
 	
 }
 
 float Warehouse::getMaxmass(unsigned int num) {
-	if (ContainerFragile* p = dynamic_cast<ContainerFragile*>(containers[num])) { return p->getMaxmass(); }
+	if (ContainerFragile* p = dynamic_cast<ContainerFragile*>(contmap[num].first)) { return p->getMaxmass(); }
 	else { throw std::exception("This is not a refrigerated container \n"); }
 }
 
@@ -133,21 +157,20 @@ float Warehouse::getMaxmass(unsigned int num) {
 //}
 
 void Warehouse::getInformation() {
-	map<unsigned int, Container*>::iterator iter_cont = containers.begin();
-	map<unsigned int, Coordinatios*>::iterator iter_coord = coorditations.begin();
+	map <unsigned int, pair<Container*, Coordinatios*>>::iterator iter_contmap = contmap.begin();
+
 	int num = 1;
-	cout << "Number of container :" << containers.size() << endl;
-	while (iter_cont != containers.end()) {
+	cout << "Number of container :" << contmap.size() << endl;
+	while (iter_contmap != contmap.end()) {
 		cout << num << ") ";
-		cout << "Number: " << iter_cont->first << ", ";
-		cout << "Type: " << iter_cont->second->returnType() << ", ";
-		iter_cont->second->printInfo();
+		cout << "Number: " << iter_contmap->first << ", ";
+		cout << "Type: " << iter_contmap->second.first->returnType() << ", ";
+		iter_contmap->second.first->printInfo();
 		cout << "  Coordinations: ";
 
-		cout << "(" << iter_coord->second->x << "," << iter_coord->second->y << "," << iter_coord->second->z << "," << iter_coord->second->orientation << ")\n";
+		cout << "(" << iter_contmap->second.second->x << "," << iter_contmap->second.second->y << "," << iter_contmap->second.second->z << "," << iter_contmap->second.second->orientation << ")\n";
 		++num;
-		++iter_cont;
-		++iter_coord;
+		++iter_contmap;
 	}
 }
 
@@ -187,7 +210,7 @@ void Warehouse::showSchema(unsigned int z) {
 
 
 bool Warehouse::checkPlace(Container& cont, Coordinatios& coord) {
-
+	return true;
 	bool*** space = new bool** [height];
 	for (int i = 0; i < height; i++) {
 		space[i] = new bool* [width];
@@ -201,17 +224,16 @@ bool Warehouse::checkPlace(Container& cont, Coordinatios& coord) {
 			for (int x = 0; x < length; x++)
 				space[z][y][x] = 0;
 
-	map<unsigned int, Coordinatios*>::iterator iter_coord = coorditations.begin();
-	map<unsigned int, Container*>::iterator iter_cont = containers.begin();
+	map <unsigned int, pair<Container*, Coordinatios*>>::iterator iter_contmap = contmap.begin();
 
-	while (iter_coord != coorditations.end()) {
-		unsigned int contX = iter_coord->second->x;
-		unsigned int contY = iter_coord->second->y;
-		unsigned int contZ = iter_coord->second->z;
-		unsigned int contL = iter_cont->second->retSize('l');
-		unsigned int contW = iter_cont->second->retSize('w');
-		unsigned int contH = iter_cont->second->retSize('h');
-		if (iter_coord->second->orientation == FRONT) {
+	while (iter_contmap != contmap.end()) {
+		unsigned int contX = iter_contmap->second.second->x;
+		unsigned int contY = iter_contmap->second.second->y;
+		unsigned int contZ = iter_contmap->second.second->z;
+		unsigned int contL = iter_contmap->second.first->retSize('l');
+		unsigned int contW = iter_contmap->second.first->retSize('w');
+		unsigned int contH = iter_contmap->second.first->retSize('h');
+		if (iter_contmap->second.second->orientation == FRONT) {
 			for (int z = contZ; z < contZ+contH; ++z) {
 				for (int y = contY; y < contY+contW; ++y) {
 					for (int x = contX; x < contX+contL; ++x) {
@@ -220,7 +242,7 @@ bool Warehouse::checkPlace(Container& cont, Coordinatios& coord) {
 				}
 			}
 		}
-		if (iter_coord->second->orientation == SIDE) {
+		if (iter_contmap->second.second->orientation == SIDE) {
 			for (int z = contZ; z < contZ + contH; ++z) {
 				for (int y = contY; y < contY + contL; ++y) {
 					for (int x = contX; x < contX + contW; ++x) {
@@ -229,8 +251,7 @@ bool Warehouse::checkPlace(Container& cont, Coordinatios& coord) {
 				}
 			}
 		}
-		++iter_coord;
-		++iter_cont;
+		++iter_contmap;
 	}
 	unsigned int thisX = coord.x;
 	unsigned int thisY = coord.y;
@@ -242,6 +263,7 @@ bool Warehouse::checkPlace(Container& cont, Coordinatios& coord) {
 		for (int z = thisZ; z < thisZ + thisH; ++z) {
 			for (int y = thisY; y < thisY + thisW; ++y) {
 				for (int x = thisX; x < thisX + thisL; ++x) {
+					if (x > length or y > width or z > height) { return false; }
 					if(space[z][y][x] == 1) return false;
 				}
 			}
@@ -251,6 +273,7 @@ bool Warehouse::checkPlace(Container& cont, Coordinatios& coord) {
 		for (int z = thisZ; z < thisZ + thisW; ++z) {
 			for (int y = thisY; y < thisY + thisH; ++y) {
 				for (int x = thisX; x < thisX + thisL; ++x) {
+					if (x > length or y > width or z > height) { return false; }
 					if(space[z][y][x] == 1) return false;
 				}
 			}
@@ -261,19 +284,19 @@ bool Warehouse::checkPlace(Container& cont, Coordinatios& coord) {
 
 void Warehouse::rotateContainer(unsigned int num,  char rot) {
 	if (rot != FRONT and rot != SIDE) throw std::exception("Incorrect rotation\n");
-	if (coorditations[num]->orientation == rot) throw std::exception("This container is already rotated\n");
-	if (containers.count(num) == 0) throw std::exception("Incorrect number\n");
+	if (contmap[num].second->orientation == rot) throw std::exception("This container is already rotated\n");
+	if (contmap.count(num) == 0) throw std::exception("Incorrect number\n");
 	if (rot == FRONT) {
-		Coordinatios newCoord(coorditations[num]->x, coorditations[num]->y, coorditations[num]->z, FRONT);
-		if (checkPlace(*containers[num], newCoord) == 1) {
-			coorditations[num]->orientation == FRONT;
+		Coordinatios newCoord(contmap[num].second->x, contmap[num].second->y, contmap[num].second->z, FRONT);
+		if (checkPlace(*contmap[num].first, newCoord) == 1) {
+			contmap[num].second->orientation == FRONT;
 		}
 		else throw std::exception("The container can't be rotated\n");
 	}
 	if (rot == SIDE) {
-		Coordinatios newCoord(coorditations[num]->x, coorditations[num]->y, coorditations[num]->z, SIDE);
-		if (checkPlace(*containers[num], newCoord) == 1) {
-			coorditations[num]->orientation == SIDE;
+		Coordinatios newCoord(contmap[num].second->x, contmap[num].second->y, contmap[num].second->z, SIDE);
+		if (checkPlace(*contmap[num].first, newCoord) == 1) {
+			contmap[num].second->orientation == SIDE;
 		}
 		else throw std::exception("The container can't be rotated\n");
 	}
@@ -294,17 +317,16 @@ bool Warehouse::checkDown(Container& cont, Coordinatios& coord) {    // 1 - если
 			for (int x = 0; x < length; x++)
 				space[z][y][x] = 0;
 
-	map<unsigned int, Coordinatios*>::iterator iter_coord = coorditations.begin();
-	map<unsigned int, Container*>::iterator iter_cont = containers.begin();
+	map <unsigned int, pair<Container*, Coordinatios*>>::iterator iter_contmap = contmap.begin();
 
-	while (iter_coord != coorditations.end()) {
-		unsigned int contX = iter_coord->second->x;
-		unsigned int contY = iter_coord->second->y;
-		unsigned int contZ = iter_coord->second->z;
-		unsigned int contL = iter_cont->second->retSize('l');
-		unsigned int contW = iter_cont->second->retSize('w');
-		unsigned int contH = iter_cont->second->retSize('h');
-		if (iter_coord->second->orientation == FRONT) {
+	while (iter_contmap != contmap.end()) {
+		unsigned int contX = iter_contmap->second.second->x;
+		unsigned int contY = iter_contmap->second.second->y;
+		unsigned int contZ = iter_contmap->second.second->z;
+		unsigned int contL = iter_contmap->second.first->retSize('l');
+		unsigned int contW = iter_contmap->second.first->retSize('w');
+		unsigned int contH = iter_contmap->second.first->retSize('h');
+		if (iter_contmap->second.second->orientation == FRONT) {
 			for (int z = contZ; z < contZ + contH; ++z) {
 				for (int y = contY; y < contY + contW; ++y) {
 					for (int x = contX; x < contX + contL; ++x) {
@@ -313,7 +335,7 @@ bool Warehouse::checkDown(Container& cont, Coordinatios& coord) {    // 1 - если
 				}
 			}
 		}
-		if (iter_coord->second->orientation == SIDE) {
+		if (iter_contmap->second.second->orientation == SIDE) {
 			for (int z = contZ; z < contZ + contH; ++z) {
 				for (int y = contY; y < contY + contL; ++y) {
 					for (int x = contX; x < contX + contW; ++x) {
@@ -322,8 +344,7 @@ bool Warehouse::checkDown(Container& cont, Coordinatios& coord) {    // 1 - если
 				}
 			}
 		}
-		++iter_coord;
-		++iter_cont;
+		++iter_contmap;
 	}
 	unsigned int thisX = coord.x;
 	unsigned int thisY = coord.y;
@@ -364,18 +385,17 @@ float Warehouse::chechDownWeight(Coordinatios& coord) {
 			for (int x = 0; x < length; x++)
 				space[z][y][x] = 0;
 
-	map<unsigned int, Coordinatios*>::iterator iter_coord = coorditations.begin();
-	map<unsigned int, Container*>::iterator iter_cont = containers.begin();
+	map <unsigned int, pair<Container*, Coordinatios*>>::iterator iter_contmap = contmap.begin();
 
-	while (iter_coord != coorditations.end()) {
-		if (ContainerFragile* p = dynamic_cast<ContainerFragile*>(iter_cont->second)) {
-		unsigned int contX = iter_coord->second->x;
-		unsigned int contY = iter_coord->second->y;
-		unsigned int contZ = iter_coord->second->z;
-		unsigned int contL = iter_cont->second->retSize('l');
-		unsigned int contW = iter_cont->second->retSize('w');
-		unsigned int contH = iter_cont->second->retSize('h');
-		if (iter_coord->second->orientation == FRONT) {
+	while (iter_contmap != contmap.end()) {
+		if (ContainerFragile* p = dynamic_cast<ContainerFragile*>(iter_contmap->second.first)) {
+		unsigned int contX = iter_contmap->second.second->x;
+		unsigned int contY = iter_contmap->second.second->y;
+		unsigned int contZ = iter_contmap->second.second->z;
+		unsigned int contL = iter_contmap->second.first->retSize('l');
+		unsigned int contW = iter_contmap->second.first->retSize('w');
+		unsigned int contH = iter_contmap->second.first->retSize('h');
+		if (iter_contmap->second.second->orientation == FRONT) {
 
 			for (int z = contZ; z < contZ + contH; ++z) {
 				for (int y = contY; y < contY + contW; ++y) {
@@ -385,7 +405,7 @@ float Warehouse::chechDownWeight(Coordinatios& coord) {
 				}
 			}
 		}
-		if (iter_coord->second->orientation == SIDE) {
+		if (iter_contmap->second.second->orientation == SIDE) {
 			for (int z = contZ; z < contZ + contH; ++z) {
 				for (int y = contY; y < contY + contL; ++y) {
 					for (int x = contX; x < contX + contW; ++x) {
@@ -395,8 +415,7 @@ float Warehouse::chechDownWeight(Coordinatios& coord) {
 			}
 		}
 	}
-		++iter_coord;
-		++iter_cont;
+		++iter_contmap;
 	}
 	unsigned int thisX = coord.x;
 	unsigned int thisY = coord.y;
@@ -511,44 +530,42 @@ int Warehouse::CalcNumbContainers(Container& cont, char plane) {
 }
 
 void Warehouse::moveContainer(unsigned int num, Coordinatios& coord) {
-	if (containers.count(num) == 0) throw std::exception("Incorrect number\n");
-	if (checkPlace(*containers[num], coord) == true) {
-		if (checkDown(*containers[num], coord) == true) {
+	if (contmap.count(num) == 0) throw std::exception("Incorrect number\n");
+	if (checkPlace(*contmap[num].first, coord) == true) {
+		if (checkDown(*contmap[num].first, coord) == true) {
 			float maxMassDown = chechDownWeight(coord);
-			if (ContainerCold* p = dynamic_cast<ContainerCold*>(containers[num])) {
+			if (ContainerCold* p = dynamic_cast<ContainerCold*>(contmap[num].first)) {
 				if (p->getTemp() < temperature) throw std::exception("Warehouse temperature is too high\n");
 			}
-			if (ContainerFC* p = dynamic_cast<ContainerFC*>(containers[num])) {
+			if (ContainerFC* p = dynamic_cast<ContainerFC*>(contmap[num].first)) {
 				if (p->getTemp() < temperature) throw std::exception("Warehouse temperature is too high\n");
 			}
-			if (maxMassDown < containers[num]->getMass()) throw std::exception("The container is too heavy\n");
+			if (maxMassDown < contmap[num].first->getMass()) throw std::exception("The container is too heavy\n");
 		}
 		else throw std::exception("Can't put the container this way\n");
 	}
 	else throw std::exception("The container can't be placed on this coordinate \n");
 
-	coorditations[num]->x = coord.x;
-	coorditations[num]->y = coord.y;
-	coorditations[num]->z = coord.z;
-	coorditations[num]->orientation = coord.orientation;
+	contmap[num].second->x = coord.x;
+	contmap[num].second->y = coord.y;
+	contmap[num].second->z = coord.z;
+	contmap[num].second->orientation = coord.orientation;
 }
 
 void Warehouse::deleteContainer(unsigned int num) {
-	containers.erase(num);
-	coorditations.erase(num);
-	map<unsigned int, Coordinatios*>::iterator iter_coord = coorditations.begin();
-	map<unsigned int, Container*>::iterator iter_cont = containers.begin();
-	while (iter_coord != coorditations.end()) {
-		while (checkDown(*iter_cont->second, *iter_coord->second) != 1) {
-			iter_coord->second->z--;
+	if (contmap.count(num) == 0) {throw std::exception("Incorrect number;\n");}
+	contmap.erase(num);
+	map <unsigned int, pair<Container*, Coordinatios*>>::iterator iter_contmap = contmap.begin();
+	while (iter_contmap != contmap.end()) {
+		while (checkDown(*iter_contmap->second.first, *iter_contmap->second.second) != 1) {
+			iter_contmap->second.second->z--;
 		}
-		++iter_coord;
-		++iter_cont;
+		++iter_contmap;
 	}
 	
 }
 
-void Warehouse:: autoAddContainer(Container& cont) {
+void Warehouse::autoAddContainer(Container& cont) {
 	bool ChTemp = true;
 	bool ChMass = true;
 	for (int x = 0; x < length - 1; ++x) {
@@ -596,4 +613,37 @@ void Warehouse:: autoAddContainer(Container& cont) {
 		}
 	}
 	throw std::exception("It is not possible to add a container\n");
+}
+
+void Warehouse::write() {
+	fstream file;
+	file.open("test", ios::app | ios::binary);
+	file.write(reinterpret_cast<char*>(this), sizeof(this));
+}
+
+void Warehouse::read() {
+	fstream file;
+	file.open("test", ios::app | ios::binary);
+	file.read(reinterpret_cast<char*>(this), sizeof(this));
+}
+
+void Warehouse::printinfocontainer(unsigned int num) {
+	if (contmap.count(num) > 0) {
+		contmap[num].first->printInfo();
+	}
+	else throw std::exception("Incorrect number\n");
+}
+
+float Warehouse::getTempWare() {
+	return temperature;
+}
+
+void Warehouse::forSave(std::ostream& out) {
+	map <unsigned int, pair<Container*, Coordinatios*>>::iterator iter_contmap = contmap.begin();
+	while (iter_contmap != contmap.end()) {
+		out << iter_contmap->second.first->returnType() << endl;  //тип контейнера
+		out << iter_contmap->second.first->forSave() << endl; //данные о контейнере
+		out << iter_contmap->second.second->x << " " << iter_contmap->second.second->y << " " << iter_contmap->second.second->z << " " << iter_contmap->second.second->orientation << endl;  //данные о местоположении
+		++iter_contmap;
+	}
 }

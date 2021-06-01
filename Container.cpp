@@ -52,3 +52,9 @@ void Container::setSize(unsigned int x, unsigned int y, unsigned int z) {
 float Container::getMass() {
 	return mass;
 }
+
+std::string Container::forSave() {
+	std::string data = company + " " + std::to_string(number) + " " + std::to_string(length) + " " + std::to_string(width) + " " +
+		std::to_string(height) + " " + std::to_string(cost) + " " + std::to_string(mass);
+	return data;
+}
